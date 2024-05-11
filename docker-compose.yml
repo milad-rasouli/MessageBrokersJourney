@@ -4,14 +4,16 @@ services:
   rabbitmq:
     image: 'rabbitmq:3.13.2-management-alpine'
     restart: always
-    
+
     environment:
       RABBITMQ_DEFAULT_USER: 'admin'
       RABBITMQ_DEFAULT_PASS: '1234qwer'
-
+      RABBITMQ_ERLANG_COOKIE: 'cookie_for_clustering'
     ports:
       - '5672:5672'
       - '15672:15672'
 
     volumes:
       - './rabbitmq-data:/var/lib/rabbitmq'
+
+    network_mode: host
