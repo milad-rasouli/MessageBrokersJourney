@@ -20,4 +20,6 @@
 # Go workspace file
 go.work
 bin
-rabbitmq-data 
+rabbitmq-data
+.vscode
+	"github.com/Milad75Rasouli/MessageBrokersJourney/rabbitmq/helper"
