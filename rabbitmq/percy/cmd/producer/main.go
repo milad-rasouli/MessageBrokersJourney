@@ -30,7 +30,19 @@ func main() {
 		panic(err)
 	}
 
+	// it's for test
 	err = client.CreateQueue("customer_test", false, true)
+	if err != nil {
+		panic(err)
+	}
+
+	err = client.CreateBinding("customer_created", "customer.created.*", "customer_test2")
+	if err != nil {
+		panic(err)
+	}
+
+	// it's for test
+	err = client.CreateBinding("customer_created", "customer.*", "customer_test2")
 	if err != nil {
 		panic(err)
 	}

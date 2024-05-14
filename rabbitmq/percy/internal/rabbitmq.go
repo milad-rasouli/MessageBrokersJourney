@@ -33,6 +33,12 @@ func (rc RabbitClient) CreateQueue(queueName string, durable, autoDelete bool) e
 	_, err := rc.ch.QueueDeclare(queueName, durable, autoDelete, false, false, nil)
 	return err
 }
+
+func (rc RabbitClient) CreateBinding(name, binding, exchange string) error {
+	// leaving nowait false, will make the channel return an error if it fails.
+	return rc.ch.QueueBind(name, binding, exchange, false, nil)
+}
+
 func (rc RabbitClient) Close() error {
 	return rc.ch.Close()
 }

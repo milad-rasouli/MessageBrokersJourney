@@ -67,3 +67,17 @@ Rules based on the extra header it's more like key-value
 P(browser=Linux) -> E(browser=Linux) --> Queue(customer_linux) -> C 
                     \-> E(browser=Windows) --> Queue(customer_windows)
 
+## Create Queue And Exchange
+``` bash
+$ sudo docker exec 63191cae1166 rabbitmqadmin declare exchange --vhost=customer name=customer_test2 type=topic -u ninja -p 1234qwer durable=true
+exchange declared
+```
+
+Since, the user does not have the permission to send data to the  topic we have to give it the permission.
+
+```bash
+$ sudo docker exec 63191 rabbitmqctl set_topic_permissions -p customer ninja customer_test2  "^customer.*" "^customer.*" 
+Setting topic permissions on "customer_test2" for user "ninja" in vhost "customer" ...
+
+```
+After, we need a function that binds the exchange to the queue.
