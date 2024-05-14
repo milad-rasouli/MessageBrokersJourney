@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"log"
 	"time"
 
 	"github.com/Milad75Rasouli/MessageBrokersJourney/rabbitmq/percy/internal"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 func main() {
@@ -43,6 +45,28 @@ func main() {
 
 	// it's for test
 	err = client.CreateBinding("customer_created", "customer.*", "customer_test2")
+	if err != nil {
+		panic(err)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err = client.Send(ctx, "customer_test2", "customer.created.us", amqp.Publishing{
+		ContentType:  "text/plain",
+		DeliveryMode: amqp.Persistent,
+		Body:         []byte("An cool message between services"),
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	// sending a transient message
+	err = client.Send(ctx, "customer_test2", "customer.test", amqp.Publishing{
+		ContentType:  "text/plain",
+		DeliveryMode: amqp.Transient,
+		Body:         []byte("An uncool undurable message between services"),
+	})
 	if err != nil {
 		panic(err)
 	}

@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"context"
 	"fmt"
 
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -39,6 +40,15 @@ func (rc RabbitClient) CreateBinding(name, binding, exchange string) error {
 	return rc.ch.QueueBind(name, binding, exchange, false, nil)
 }
 
+func (rc RabbitClient) Send(ctx context.Context, exchange, routingKey string, options amqp.Publishing) error {
+	return rc.ch.PublishWithContext(ctx,
+		exchange,
+		routingKey,
+		true,  // Mandatory is used to determine an error should be returned upon failure
+		false, //immediate
+		options,
+	)
+}
 func (rc RabbitClient) Close() error {
 	return rc.ch.Close()
 }
