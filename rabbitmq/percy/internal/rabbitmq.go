@@ -3,6 +3,7 @@ package internal
 import (
 	"context"
 	"fmt"
+	"log"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -23,7 +24,11 @@ func NewRabbitMQClient(conn *amqp.Connection) (RabbitClient, error) {
 	if err != nil {
 		return RabbitClient{}, err
 	}
-
+	// for waiting for ack need to active the confirm mode
+	err = ch.Confirm(false)
+	if err != nil {
+		return RabbitClient{}, err
+	}
 	return RabbitClient{
 		conn: conn,
 		ch:   ch,
@@ -41,13 +46,26 @@ func (rc RabbitClient) CreateBinding(name, binding, exchange string) error {
 }
 
 func (rc RabbitClient) Send(ctx context.Context, exchange, routingKey string, options amqp.Publishing) error {
-	return rc.ch.PublishWithContext(ctx,
+	// return rc.ch.PublishWithContext(ctx,
+	// 	exchange,
+	// 	routingKey,
+	// 	true,  // Mandatory is used to determine an error should be returned upon failure
+	// 	false, //immediate
+	// 	options,
+	// )
+	confirmation, err := rc.ch.PublishWithDeferredConfirmWithContext(ctx,
 		exchange,
 		routingKey,
 		true,  // Mandatory is used to determine an error should be returned upon failure
 		false, //immediate
 		options,
 	)
+	if err != nil {
+		return err
+	}
+	log.Println(confirmation.Wait())
+	return nil
+
 }
 
 func (rc RabbitClient) Consume(queue, consumer string, autoAck bool) (<-chan amqp.Delivery, error) {
