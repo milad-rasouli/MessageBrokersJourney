@@ -22,4 +22,3 @@ go.work
 bin
 rabbitmq-data
 .vscode
-	"github.com/Milad75Rasouli/MessageBrokersJourney/rabbitmq/helper"

@@ -13,7 +13,7 @@ func main() {
 	var (
 		err error
 	)
-	log.Println("percy producer is running!")
+	log.Println("the percy producer is running!")
 	conn, err := internal.ConnectRabbitMQ("ninja", "1234qwer", "localhost:5672", "customer")
 	if err != nil {
 		panic(err)
