@@ -34,10 +34,20 @@ func main() {
 	go func() {
 		for message := range messageBus {
 			log.Printf("new message: %v\n", message)
+			if !message.Redelivered {
+				err = message.Nack(false, true)
+				if err != nil {
+					log.Println(err)
+					continue
+				}
+			}
 			err = message.Ack(false)
 			if err != nil {
-				panic(err)
+				//panic(err)
+				log.Println(err)
+				continue
 			}
+
 			log.Printf("acknowledge message %s\n", message.MessageId)
 		}
 	}()
