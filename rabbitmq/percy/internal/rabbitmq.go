@@ -54,6 +54,10 @@ func (rc RabbitClient) Consume(queue, consumer string, autoAck bool) (<-chan amq
 	return rc.ch.Consume(queue, consumer, autoAck, false, false, false, nil)
 }
 
+func (rc RabbitClient) Qos(prefetchCount, prefetchSize int, global bool) error {
+	return rc.ch.Qos(prefetchCount, prefetchSize, global)
+}
+
 func (rc RabbitClient) Close() error {
 	return rc.ch.Close()
 }

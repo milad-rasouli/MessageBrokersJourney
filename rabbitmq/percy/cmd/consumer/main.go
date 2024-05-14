@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
 	"log"
+	"time"
 
 	"github.com/Milad75Rasouli/MessageBrokersJourney/rabbitmq/percy/internal"
+	"golang.org/x/sync/errgroup"
 )
 
 func main() {
@@ -23,6 +26,15 @@ func main() {
 	}
 	defer client.Close()
 
+	// err = client.Qos(
+	// 	1,     // prefetch count
+	// 	0,     // prefetch size
+	// 	false, // global
+	// )
+	// if err != nil {
+	// 	log.Fatalf("Failed to set QoS: %s", err)
+	// }
+
 	// the rabbitmq will keep sending the message till it get expired or receive back an ACK.
 	// autoAck can be dangerous
 	messageBus, err := client.Consume("customer_created", "email-service", false)
@@ -31,25 +43,48 @@ func main() {
 	}
 
 	var blocking chan struct{}
+	// go func() {
+	// 	for message := range messageBus {
+	// 		log.Printf("new message: %v\n", message)
+	// 		if !message.Redelivered {
+	// 			err = message.Nack(false, true)
+	// 			if err != nil {
+	// 				log.Println(err)
+	// 				continue
+	// 			}
+	// 		}
+	// 		err = message.Ack(false)
+	// 		if err != nil {
+	// 			//panic(err)
+	// 			log.Println(err)
+	// 			continue
+	// 		}
+
+	// 		log.Printf("acknowledge message %s\n", message.MessageId)
+	// 	}
+	// }()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	g, ctx := errgroup.WithContext(ctx)
+	g.SetLimit(10)
 	go func() {
 		for message := range messageBus {
-			log.Printf("new message: %v\n", message)
-			if !message.Redelivered {
-				err = message.Nack(false, true)
+			msg := message
+			g.Go(func() error {
+				log.Printf("new message: %s", msg)
+				<-time.After(1 * time.Second)
+				err = msg.Ack(false)
 				if err != nil {
-					log.Println(err)
-					continue
+					log.Println("ack failed")
+					return err
 				}
-			}
-			err = message.Ack(false)
-			if err != nil {
-				//panic(err)
-				log.Println(err)
-				continue
-			}
-
-			log.Printf("acknowledge message %s\n", message.MessageId)
+				log.Printf("acknowledged message %s\n", msg.MessageId)
+				return nil
+			})
 		}
 	}()
+	log.Println("consuming use CTRL+C")
 	<-blocking
 }
