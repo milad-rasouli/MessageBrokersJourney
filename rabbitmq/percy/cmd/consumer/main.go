@@ -38,14 +38,10 @@ func main() {
 		panic(err)
 	}
 	defer publishClient.Close()
-	// err = client.Qos(
-	// 	1,     // prefetch count
-	// 	0,     // prefetch size
-	// 	false, // global
-	// )
-	// if err != nil {
-	// 	log.Fatalf("Failed to set QoS: %s", err)
-	// }
+	err = client.Qos(5, 0, false)
+	if err != nil {
+		log.Fatalf("Failed to set QoS: %s", err)
+	}
 
 	// leave the queue name blank, the rabbitmq will generate you a random name
 	queue, err := client.CreateQueue("", true, true)

@@ -137,3 +137,39 @@ Setting topic permissions on "customer_callback" for user "ninja" in vhost "cust
 
 a good rule of thumb:
 never use a connection for publishing and consuming.
+
+## Encrypt the data
+to to so, we are going to use TLS.
+just follow the instruction:
+```bash
+$ git clone https://github.com/rabbitmq/tls-gen tls-gen
+
+$ cd tls-gen/basic
+
+$ make PASSWORD=
+
+$ make verify
+
+$ sudo chmod 644 result/*
+```
+then, we need to delete the rabbitmq instance and rerun it.
+go to the root project path.
+```bash
+$ sudo docker compose down -v
+
+$ sudo rm -rf rabbitmq-data
+
+$ sudo docker compose up
+```
+
+then edit the rabbitmq.conf
+just make sure the name of the files are correct as follow:
+```bash
+$ sudo docker exec -it a4f502f44e56  sh
+
+$ ls certs
+ca_certificate.pem            client_milad_certificate.pem  server_milad_certificate.pem
+ca_key.pem                    client_milad_key.pem          server_milad_key.pem
+client_milad.p12              server_milad.p12
+
+```

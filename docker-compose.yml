@@ -11,9 +11,12 @@ services:
       RABBITMQ_ERLANG_COOKIE: 'cookie_for_clustering'
     ports:
       - '5672:5672'
+      - '5671:5671'
       - '15672:15672'
 
     volumes:
       - './rabbitmq-data:/var/lib/rabbitmq'
+      - './rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro'
+      - './tls-gen/basic/result:/certs'
 
     network_mode: host
