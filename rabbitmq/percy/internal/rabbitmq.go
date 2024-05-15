@@ -35,9 +35,12 @@ func NewRabbitMQClient(conn *amqp.Connection) (RabbitClient, error) {
 	}, nil
 }
 
-func (rc RabbitClient) CreateQueue(queueName string, durable, autoDelete bool) error {
-	_, err := rc.ch.QueueDeclare(queueName, durable, autoDelete, false, false, nil)
-	return err
+func (rc RabbitClient) CreateQueue(queueName string, durable, autoDelete bool) (amqp.Queue, error) {
+	q, err := rc.ch.QueueDeclare(queueName, durable, autoDelete, false, false, nil)
+	if err != nil {
+		return amqp.Queue{}, err
+	}
+	return q, err
 }
 
 func (rc RabbitClient) CreateBinding(name, binding, exchange string) error {

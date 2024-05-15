@@ -35,9 +35,20 @@ func main() {
 	// 	log.Fatalf("Failed to set QoS: %s", err)
 	// }
 
+	// leave the queue name blank, the rabbitmq will generate you a random name
+	queue, err := client.CreateQueue("", true, true)
+	if err != nil {
+		panic(err)
+	}
+
+	err = client.CreateBinding(queue.Name, "", "customer_test2")
+	if err != nil {
+		panic(err)
+	}
+
 	// the rabbitmq will keep sending the message till it get expired or receive back an ACK.
 	// autoAck can be dangerous
-	messageBus, err := client.Consume("customer_created", "email-service", false)
+	messageBus, err := client.Consume(queue.Name, "email-service", false)
 	if err != nil {
 		panic(err)
 	}

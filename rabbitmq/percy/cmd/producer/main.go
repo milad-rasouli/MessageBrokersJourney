@@ -27,27 +27,27 @@ func main() {
 	}
 	defer client.Close()
 
-	err = client.CreateQueue("customer_created", true, false)
-	if err != nil {
-		panic(err)
-	}
+	// _, err = client.CreateQueue("customer_created", true, false)
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	// it's for test
-	err = client.CreateQueue("customer_test", false, true)
-	if err != nil {
-		panic(err)
-	}
+	// // it's for test
+	// _, err = client.CreateQueue("customer_test", false, true)
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	err = client.CreateBinding("customer_created", "customer.created.*", "customer_test2")
-	if err != nil {
-		panic(err)
-	}
+	// err = client.CreateBinding("customer_created", "customer.created.*", "customer_test2")
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	// it's for test
-	err = client.CreateBinding("customer_created", "customer.*", "customer_test2")
-	if err != nil {
-		panic(err)
-	}
+	// // it's for test
+	// err = client.CreateBinding("customer_created", "customer.*", "customer_test2")
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -62,15 +62,15 @@ func main() {
 			panic(err)
 		}
 
-		// sending a transient message
-		err = client.Send(ctx, "customer_test2", "customer.test", amqp.Publishing{
-			ContentType:  "text/plain",
-			DeliveryMode: amqp.Transient,
-			Body:         []byte("An uncool undurable message between services"),
-		})
-		if err != nil {
-			panic(err)
-		}
+		// // sending a transient message
+		// err = client.Send(ctx, "customer_test2", "customer.test", amqp.Publishing{
+		// 	ContentType:  "text/plain",
+		// 	DeliveryMode: amqp.Transient,
+		// 	Body:         []byte("An uncool undurable message between services"),
+		// })
+		// if err != nil {
+		// 	panic(err)
+		// }
 
 		// <-time.After(10 * time.Second)
 	}

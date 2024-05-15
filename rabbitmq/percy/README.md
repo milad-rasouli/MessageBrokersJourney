@@ -81,3 +81,25 @@ Setting topic permissions on "customer_test2" for user "ninja" in vhost "custome
 
 ```
 After, we need a function that binds the exchange to the queue.
+
+## Use fanout exchange
+first delete the previous exchange 
+```bash
+$ sudo docker exec 63191 rabbitmqadmin delete exchange name=customer_test2 --vhost=customer -u ninja -p 1234qwer
+exchange deleted
+```
+then redeclare the queue:
+ps: there is no way to modify the type of the exchange except deleting it and recreate it.
+```bash
+sudo docker exec 63191 rabbitmqadmin declare exchange name=customer_test2 --vhost=customer type=fanout durable=true -u ninja -p 1234qwer
+exchange declared
+``` 
+then, we need to update the permission:
+```bash
+$ sudo docker exec 63191 rabbitmqctl set_topic_permissions -p customer ninja customer_test2 ".*" ".*" 
+Setting topic permissions on "customer_test2" for user "ninja" in vhost "customer" ...
+```
+now, we are ready to go!
+
+** caution:**
+there is a drawback in this way. if no consumer creates queue the producer will sends to nowhere. meaning the data will be lost.
