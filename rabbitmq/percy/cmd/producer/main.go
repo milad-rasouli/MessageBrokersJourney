@@ -17,7 +17,15 @@ func main() {
 	log.Println("the percy producer is running!")
 
 	// all consuming will be done on this connection
-	consumeConn, err := internal.ConnectRabbitMQ("ninja", "1234qwer", "localhost:5672", "customer")
+	consumeConn, err := internal.ConnectRabbitMQWithTLS(
+		"ninja",
+		"1234qwer",
+		"localhost:5671",
+		"customer",
+		"/home/milad/Documents/MessageBrokersJourney/tls-gen/basic/result/ca_certificate.pem",
+		"/home/milad/Documents/MessageBrokersJourney/tls-gen/basic/result/client_milad_certificate.pem",
+		"/home/milad/Documents/MessageBrokersJourney/tls-gen/basic/result/client_milad_key.pem",
+	)
 	if err != nil {
 		panic(err)
 	}
@@ -30,7 +38,15 @@ func main() {
 	}
 	defer consumeClient.Close()
 
-	producerConn, err := internal.ConnectRabbitMQ("ninja", "1234qwer", "localhost:5672", "customer")
+	producerConn, err := internal.ConnectRabbitMQWithTLS(
+		"ninja",
+		"1234qwer",
+		"localhost:5671",
+		"customer",
+		"/home/milad/Documents/MessageBrokersJourney/tls-gen/basic/result/ca_certificate.pem",
+		"/home/milad/Documents/MessageBrokersJourney/tls-gen/basic/result/client_milad_certificate.pem",
+		"/home/milad/Documents/MessageBrokersJourney/tls-gen/basic/result/client_milad_key.pem",
+	)
 	if err != nil {
 		panic(err)
 	}

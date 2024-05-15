@@ -14,7 +14,16 @@ func main() {
 	var (
 		err error
 	)
-	conn, err := internal.ConnectRabbitMQ("ninja", "1234qwer", "localhost:5672", "customer")
+	// instead of the hard coded items use env in real product
+	conn, err := internal.ConnectRabbitMQWithTLS(
+		"ninja",
+		"1234qwer",
+		"localhost:5671",
+		"customer",
+		"/home/milad/Documents/MessageBrokersJourney/tls-gen/basic/result/ca_certificate.pem",
+		"/home/milad/Documents/MessageBrokersJourney/tls-gen/basic/result/client_milad_certificate.pem",
+		"/home/milad/Documents/MessageBrokersJourney/tls-gen/basic/result/client_milad_key.pem",
+	)
 	if err != nil {
 		panic(err)
 	}
@@ -28,7 +37,15 @@ func main() {
 	}
 	defer client.Close()
 
-	publishConn, err := internal.ConnectRabbitMQ("ninja", "1234qwer", "localhost:5672", "customer")
+	publishConn, err := internal.ConnectRabbitMQWithTLS(
+		"ninja",
+		"1234qwer",
+		"localhost:5671",
+		"customer",
+		"/home/milad/Documents/MessageBrokersJourney/tls-gen/basic/result/ca_certificate.pem",
+		"/home/milad/Documents/MessageBrokersJourney/tls-gen/basic/result/client_milad_certificate.pem",
+		"/home/milad/Documents/MessageBrokersJourney/tls-gen/basic/result/client_milad_key.pem",
+	)
 	if err != nil {
 		panic(err)
 	}

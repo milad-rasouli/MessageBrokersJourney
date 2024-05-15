@@ -173,3 +173,14 @@ ca_key.pem                    client_milad_key.pem          server_milad_key.pem
 client_milad.p12              server_milad.p12
 
 ```
+
+## Generate password for TLS
+
+```bash
+$ cd script
+
+$ sudo chmod +x encodepassword.sh
+
+$ ./encodepassword.sh 
+XpHhjk92Ez0M7fN5y0DiYmIm+LbdA+hrgCHnnHx6arAsht9H
+```
