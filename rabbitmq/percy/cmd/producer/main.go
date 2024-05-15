@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -14,18 +15,33 @@ func main() {
 		err error
 	)
 	log.Println("the percy producer is running!")
-	conn, err := internal.ConnectRabbitMQ("ninja", "1234qwer", "localhost:5672", "customer")
+
+	// all consuming will be done on this connection
+	consumeConn, err := internal.ConnectRabbitMQ("ninja", "1234qwer", "localhost:5672", "customer")
 	if err != nil {
 		panic(err)
 	}
-	defer conn.Close()
+	defer consumeConn.Close()
 	// tip:
 	// you should recreate channel for each concurrent task, but reuse the connection!
-	client, err := internal.NewRabbitMQClient(conn)
+	consumeClient, err := internal.NewRabbitMQClient(consumeConn)
 	if err != nil {
 		panic(err)
 	}
-	defer client.Close()
+	defer consumeClient.Close()
+
+	producerConn, err := internal.ConnectRabbitMQ("ninja", "1234qwer", "localhost:5672", "customer")
+	if err != nil {
+		panic(err)
+	}
+	defer producerConn.Close()
+	// tip:
+	// you should recreate channel for each concurrent task, but reuse the connection!
+	producerClient, err := internal.NewRabbitMQClient(producerConn)
+	if err != nil {
+		panic(err)
+	}
+	defer producerClient.Close()
 
 	// _, err = client.CreateQueue("customer_created", true, false)
 	// if err != nil {
@@ -49,14 +65,36 @@ func main() {
 	// 	panic(err)
 	// }
 
+	queue, err := consumeClient.CreateQueue("", true, true)
+	if err != nil {
+		panic(err)
+	}
+
+	err = consumeClient.CreateBinding(queue.Name, queue.Name, "customer_callback")
+	if err != nil {
+		panic(err)
+	}
+	messageBus, err := consumeClient.Consume(queue.Name, "customer-api", true)
+	if err != nil {
+		panic(err)
+	}
+	go func() {
+		for message := range messageBus {
+			log.Printf("message callback %s\n", message.CorrelationId)
+		}
+	}()
+
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
+
 	for i := 0; i < 10; i++ {
 
-		err = client.Send(ctx, "customer_test2", "customer.created.us", amqp.Publishing{
-			ContentType:  "text/plain",
-			DeliveryMode: amqp.Persistent,
-			Body:         []byte("An cool message between services"),
+		err = producerClient.Send(ctx, "customer_test2", "customer.created.us", amqp.Publishing{
+			ContentType:   "text/plain",
+			DeliveryMode:  amqp.Persistent,
+			ReplyTo:       queue.Name,
+			CorrelationId: fmt.Sprintf("customer_created_%d", i),
+			Body:          []byte("An cool message between services"),
 		})
 		if err != nil {
 			panic(err)
@@ -75,6 +113,6 @@ func main() {
 		// <-time.After(10 * time.Second)
 	}
 
-	// To send the data we need to make an queue
-	log.Println(client)
+	var blocking chan struct{}
+	<-blocking
 }

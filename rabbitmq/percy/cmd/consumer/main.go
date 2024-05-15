@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Milad75Rasouli/MessageBrokersJourney/rabbitmq/percy/internal"
+	"github.com/rabbitmq/amqp091-go"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -18,6 +19,7 @@ func main() {
 		panic(err)
 	}
 	defer conn.Close()
+
 	// tip:
 	// you should recreate channel for each concurrent task, but reuse the connection!
 	client, err := internal.NewRabbitMQClient(conn)
@@ -26,6 +28,16 @@ func main() {
 	}
 	defer client.Close()
 
+	publishConn, err := internal.ConnectRabbitMQ("ninja", "1234qwer", "localhost:5672", "customer")
+	if err != nil {
+		panic(err)
+	}
+	defer publishConn.Close()
+	publishClient, err := internal.NewRabbitMQClient(publishConn)
+	if err != nil {
+		panic(err)
+	}
+	defer publishClient.Close()
 	// err = client.Qos(
 	// 	1,     // prefetch count
 	// 	0,     // prefetch size
@@ -90,6 +102,16 @@ func main() {
 				if err != nil {
 					log.Println("ack failed")
 					return err
+				}
+
+				err = publishClient.Send(ctx, "customer_callback", msg.ReplyTo, amqp091.Publishing{
+					ContentType:   "text/plain",
+					DeliveryMode:  amqp091.Persistent,
+					Body:          []byte("RPC COMPLETE"),
+					CorrelationId: msg.CorrelationId, // the publisher will know what message we got
+				})
+				if err != nil {
+					panic(err)
 				}
 				log.Printf("acknowledged message %s\n", msg.MessageId)
 				return nil

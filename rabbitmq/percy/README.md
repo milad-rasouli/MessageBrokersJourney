@@ -103,3 +103,37 @@ now, we are ready to go!
 
 ** caution:**
 there is a drawback in this way. if no consumer creates queue the producer will sends to nowhere. meaning the data will be lost.
+
+## Use RPC Exchange
+we need 2 exchanges for this example:
+1. for replying
+2- fo the data
+
+### For data
+make sure you have this exchange:
+```bash
+sudo docker exec 63191 rabbitmqadmin declare exchange name=customer_test2 --vhost=customer type=fanout durable=true -u ninja -p 1234qwer
+exchange declared
+``` 
+you might need to delete it and then create the exchange here you go!
+```bash
+$ sudo docker exec 63191 rabbitmqadmin delete exchange name=customer_test2 --vhost=customer -u ninja -p 1234qwer                          
+exchange deleted 
+```
+### For replying
+we need to have a direct exchange fo this part.
+create the exchange:
+```bash 
+$ sudo docker exec 63191 rabbitmqadmin declare exchange name=customer_callback type=direct --vhost=customer durable=true -u ninja -p 1234qwer 
+exchange declared
+```
+
+permission:
+```bash
+sudo docker exec 63191 rabbitmqctl set_topic_permissions -p customer ninja customer_callback ".*" ".*"
+Setting topic permissions on "customer_callback" for user "ninja" in vhost "customer" ...
+
+```
+
+a good rule of thumb:
+never use a connection for publishing and consuming.
