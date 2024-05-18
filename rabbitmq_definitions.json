@@ -3,7 +3,7 @@
         {
             "name":"ninja",
             "password_hash":"XpHhjk92Ez0M7fN5y0DiYmIm+LbdA+hrgCHnnHx6arAsht9H",
-            "tag":"administrator"
+            "tags":"administrator"
         }
     ],
     "vhosts":[
