@@ -17,3 +17,17 @@ services:
       - './tls-gen/basic/result:/certs'
       - './rabbitmq_definitions.json:/etc/rabbitmq/rabbitmq_definitions.json:ro' 
     network_mode: host
+  
+  nats:
+    image: nats:2.10.14-alpine3.19
+    command: -m 8222 -js 
+    
+    ports:
+      - '4222:4222'
+      - '8222:8222'
+    volumes:
+      - './nats-data:/data'
+    environment:
+      - NATS_STREAMING_STORE_DIR=/data
+    network_mode: host
+

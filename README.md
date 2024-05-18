@@ -18,7 +18,10 @@ cd MessageBrokersJourney
 ```bash
 sudo docker-compose up rabbitmq
 ```
-    - If you could perform the command successfully, you might want to take a look at the *RabbitMQ Management* at *http://localhost:15672* and username and password are up to you. You can find them in *docker-compose.yml* file. 
+
+> [!NOTE] 
+> If you could perform the command successfully, you might want to take a look at the *RabbitMQ Management* at *http://localhost:15672* and username and password are up to you. You can find them in *docker-compose.yml* file. 
+
 3. Perform this command to run a **consumer**(you can perform this command as many as you like in different terminals/CMD to get more consumer)
 ```bash
 just pc-run
@@ -45,3 +48,19 @@ sudo docker-compose down rabbitmq -v
 > The command must be performed in the main project directory.
 
 [Take a look at here for more examples](https://www.rabbitmq.com/tutorials)
+
+## NATS
+Here is how you can run the examples:
+
+1. Go to the project directory.
+```bash
+cd MessageBrokersJourney
+```
+
+2. Perform this command to run NATS in your local machine:
+```bash
+sudo docker-compose up nats
+```
+
+> [!NOTE] 
+> If you could perform the command successfully, you might want to take a look at the *NATS monitoring* at *http://localhost:8222* you don't need any passwords for that. 

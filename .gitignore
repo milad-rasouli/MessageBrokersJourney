@@ -21,4 +21,5 @@
 go.work
 bin
 rabbitmq-data
+nats-data
 .vscode
