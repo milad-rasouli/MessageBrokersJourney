@@ -27,7 +27,7 @@ sudo docker-compose up rabbitmq
 just pc-run
 ```
 > [!IMPORTANT]
-> If you have a problem with **just** you might need to install it on you machine first and put the installation path in your Linux/Windows **PATH**
+> If you have a problem with **just**https://github.com/casey/just you might need to [install it on you machine first](https://github.com/casey/just) and put the installation path in your Linux/Windows **PATH**
 
 4. Perform this command to run a **producer**
 
@@ -64,3 +64,5 @@ sudo docker-compose up nats
 
 > [!NOTE] 
 > If you could perform the command successfully, you might want to take a look at the *NATS monitoring* at *http://localhost:8222* you don't need any passwords for that. 
+
+[Take a look at here for more examples](https://natsbyexample.com/)

@@ -21,7 +21,6 @@ services:
   nats:
     image: nats:2.10.14-alpine3.19
     command: -m 8222 -js 
-    
     ports:
       - '4222:4222'
       - '8222:8222'

@@ -3,7 +3,12 @@ build:
     go build -o ./bin/rabbit-publisher ./rabbitmq/hello-world/publisher/main.go
     go build -o ./bin/percy-publisher ./rabbitmq/percy/cmd/producer/main.go
     go build -o ./bin/percy-consumer ./rabbitmq/percy/cmd/consumer/main.go
+    
+build-nats:
+    go build -o ./bin/producer-nats ./nats/producer/main.go
 
+np-run: build-nats
+    ./bin/producer-nats
 rc-run: build
     ./bin/rabbit-consumer 
 
