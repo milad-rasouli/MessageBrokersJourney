@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -14,7 +15,7 @@ func main() {
 	var (
 		natsAddress = nats.DefaultURL // "nats://127.0.0.1:4222"
 	)
-	log.Println("Producer is running.")
+	log.Println("Consumer is running.")
 
 	nc, err := nats.Connect(natsAddress)
 	helper.HandleError(err)
@@ -26,12 +27,26 @@ func main() {
 	streamName := "EVENTS"
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	_, err = js.CreateStream(ctx, jetstream.StreamConfig{
+	stream, err := js.CreateStream(ctx, jetstream.StreamConfig{
 		Name:     streamName,
 		Subjects: []string{"events.>"},
 	})
+	helper.HandleError(err)
 
-	js.Publish(ctx, "events.1", []byte("message from producer 1 "+time.Now().String()))
+	cons, err := stream.CreateOrUpdateConsumer(ctx, jetstream.ConsumerConfig{})
+	helper.HandleError(err)
+
+	fetchStart := time.Now()
+	msgs, err := cons.Fetch(1, jetstream.FetchMaxWait(time.Second))
+	helper.HandleError(err)
+	i := 0
+	for msg := range msgs.Messages() {
+		log.Printf("message: %s", msg.Data())
+		msg.Ack()
+		i++
+	}
+
+	fmt.Printf("got %d messages in %v\n", i, time.Since(fetchStart))
 
 	//<-time.After(50 * time.Second)
 }

@@ -6,9 +6,13 @@ build:
     
 build-nats:
     go build -o ./bin/producer-nats ./nats/producer/main.go
+    go build -o ./bin/consumer-nats ./nats/consumer/main.go
 
 np-run: build-nats
     ./bin/producer-nats
+nc-run: build-nats
+    ./bin/consumer-nats
+
 rc-run: build
     ./bin/rabbit-consumer 
 
