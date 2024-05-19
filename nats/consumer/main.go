@@ -13,40 +13,49 @@ import (
 
 func main() {
 	var (
-		natsAddress = nats.DefaultURL // "nats://127.0.0.1:4222"
+		streamName    = "EVENTS"
+		consumerName1 = "processor-1"
+		url           = nats.DefaultURL
+		nc            *nats.Conn
+		stream        jetstream.Stream
+		err           error
 	)
-	log.Println("Consumer is running.")
 
-	nc, err := nats.Connect(natsAddress)
-	helper.HandleError(err)
-	defer nc.Drain()
-
-	js, err := jetstream.New(nc)
-	helper.HandleError(err)
-
-	streamName := "EVENTS"
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	stream, err := js.CreateStream(ctx, jetstream.StreamConfig{
-		Name:     streamName,
-		Subjects: []string{"events.>"},
-	})
-	helper.HandleError(err)
+	{
+		nc, err = nats.Connect(url)
+		helper.HandleError(err)
+		defer nc.Drain()
 
-	cons, err := stream.CreateOrUpdateConsumer(ctx, jetstream.ConsumerConfig{})
-	helper.HandleError(err)
+		js, err := jetstream.New(nc)
+		helper.HandleError(err)
 
-	fetchStart := time.Now()
-	msgs, err := cons.Fetch(1, jetstream.FetchMaxWait(time.Second))
-	helper.HandleError(err)
-	i := 0
-	for msg := range msgs.Messages() {
-		log.Printf("message: %s", msg.Data())
-		msg.Ack()
-		i++
+		cfg := jetstream.StreamConfig{
+			Name:      streamName,
+			Retention: jetstream.WorkQueuePolicy,
+			Subjects:  []string{"events.>"},
+		}
+
+		stream, err = js.CreateStream(ctx, cfg)
+		helper.HandleError(err)
+		fmt.Println("created the stream")
 	}
 
-	fmt.Printf("got %d messages in %v\n", i, time.Since(fetchStart))
+	cons1, _ := stream.CreateOrUpdateConsumer(ctx, jetstream.ConsumerConfig{
+		Name: consumerName1,
+	})
+	// msgs, _ := cons1.Fetch(3)
+	// for msg := range msgs.Messages() {
+	// 	log.Println("Received message: ", string(msg.Data()))
+	// 	msg.DoubleAck(ctx)
+	// }
 
-	//<-time.After(50 * time.Second)
+	msgs, _ := cons1.Fetch(5, jetstream.FetchMaxWait(time.Second*30))
+	for msg := range msgs.Messages() {
+		log.Printf("Received message: %s: %s\n", msg.Subject(), string(msg.Data()))
+		msg.DoubleAck(ctx)
+	}
+
+	stream.DeleteConsumer(ctx, consumerName1)
 }

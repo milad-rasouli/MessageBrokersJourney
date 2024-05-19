@@ -2,36 +2,51 @@ package main
 
 import (
 	"context"
-	"log"
+	"encoding/json"
+	"fmt"
+	"os"
 	"time"
 
-	"github.com/Milad75Rasouli/MessageBrokersJourney/nats/helper"
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 )
 
 func main() {
-	var (
-		natsAddress = nats.DefaultURL // "nats://127.0.0.1:4222"
-	)
-	log.Println("Producer is running.")
 
-	nc, err := nats.Connect(natsAddress)
-	helper.HandleError(err)
+	url := os.Getenv("NATS_URL")
+	if url == "" {
+		url = nats.DefaultURL
+	}
+
+	nc, _ := nats.Connect(url)
 	defer nc.Drain()
 
-	js, err := jetstream.New(nc)
-	helper.HandleError(err)
+	js, _ := jetstream.New(nc)
 
-	streamName := "EVENTS"
+	cfg := jetstream.StreamConfig{
+		Name:      "EVENTS",
+		Retention: jetstream.WorkQueuePolicy,
+		Subjects:  []string{"events.>"},
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	_, err = js.CreateStream(ctx, jetstream.StreamConfig{
-		Name:     streamName,
-		Subjects: []string{"events.>"},
-	})
 
-	js.Publish(ctx, "events.1", []byte("message from producer 1 "+time.Now().String()))
+	stream, _ := js.CreateStream(ctx, cfg)
+	fmt.Println("created the stream")
 
-	//<-time.After(50 * time.Second)
+	js.Publish(ctx, "events.us.page_loaded", []byte("#1 message"))
+	js.Publish(ctx, "events.eu.mouse_clicked", []byte("#2 message"))
+	js.Publish(ctx, "events.us.input_focused", []byte("#3 message"))
+	fmt.Println("published 3 messages")
+
+	fmt.Println("# Stream info without any consumers")
+	printStreamState(ctx, stream)
+
+}
+
+func printStreamState(ctx context.Context, stream jetstream.Stream) {
+	info, _ := stream.Info(ctx)
+	b, _ := json.MarshalIndent(info.State, "", " ")
+	fmt.Println(string(b))
 }

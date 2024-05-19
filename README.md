@@ -65,4 +65,6 @@ sudo docker-compose up nats
 > [!NOTE] 
 > If you could perform the command successfully, you might want to take a look at the *NATS monitoring* at *http://localhost:8222* you don't need any passwords for that. 
 
+
+
 [Take a look at here for more examples](https://natsbyexample.com/)
