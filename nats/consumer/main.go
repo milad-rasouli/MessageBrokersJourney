@@ -23,11 +23,10 @@ func main() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+	nc, err = nats.Connect(url)
+	helper.HandleError(err)
+	defer nc.Drain()
 	{
-		nc, err = nats.Connect(url)
-		helper.HandleError(err)
-		defer nc.Drain()
-
 		js, err := jetstream.New(nc)
 		helper.HandleError(err)
 
