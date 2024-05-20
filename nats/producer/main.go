@@ -13,7 +13,7 @@ import (
 
 func main() {
 	var (
-		url    = nats.DefaultURL
+		url    = "nats://ninja:1234qwer@localhost:4222" //nats.DefaultURL
 		nc     *nats.Conn
 		js     jetstream.JetStream
 		stream jetstream.Stream

@@ -20,12 +20,13 @@ services:
   
   nats:
     image: nats:2.10.14-alpine3.19
-    command: -m 8222 -js 
+    command: ["-m", "8222", "-js", "-c", "/etc/nats/nats.conf"]
     ports:
       - '4222:4222'
       - '8222:8222'
     volumes:
       - './nats-data:/data'
+      - './nats.conf:/etc/nats/nats.conf:ro'
     environment:
       - NATS_STREAMING_STORE_DIR=/data
     network_mode: host

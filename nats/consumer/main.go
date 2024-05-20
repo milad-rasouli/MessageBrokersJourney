@@ -15,7 +15,7 @@ func main() {
 	var (
 		streamName    = "EVENTS"
 		consumerName1 = "processor-1"
-		url           = nats.DefaultURL
+		url           = "nats://ninja:1234qwer@localhost:4222" //nats.DefaultURL
 		nc            *nats.Conn
 		stream        jetstream.Stream
 		err           error
